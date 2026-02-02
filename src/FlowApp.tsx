@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FloatingQuestions from "@/components/FloatingQuestions";
 import QuestionScreen from "@/components/QuestionScreen";
 import FinalScreen from "@/components/FinalScreen";
@@ -9,11 +9,23 @@ type Q = { id: string; text: string };
 const STORAGE_USER_KEY = "userQuestions";
 
 const seedQuestions: Q[] = [
-  { id: "seed-1", text: "What matters most to you today?" },
-  { id: "seed-2", text: "Which habit changed your life?" },
-  { id: "seed-3", text: "What's a question you can't stop thinking about?" },
-  { id: "seed-4", text: "If you could ask the future one thing, what is it?" },
-  { id: "seed-5", text: "What would you teach the next generation?" },
+  { id: "seed-1", text: "Which rights feel under threat today?" },
+  { id: "seed-2", text: "When is security used to limit freedom?" },
+  { id: "seed-3", text: "What role do political parties play in a democracy?" },
+  { id: "seed-4", text: "Are human rights universal?" },
+  { id: "seed-5", text: "How often should elections take place?" },
+  {
+    id: "seed-6",
+    text: "What other public offices should be popularly elected?",
+  },
+  { id: "seed-7", text: "Do voters have any power between elections?" },
+  { id: "seed-8", text: "How can we improve political participation?" },
+  { id: "seed-9", text: "What are the limits of free speech?" },
+  { id: "seed-10", text: "How can we better protect minority rights?" },
+  {
+    id: "seed-11",
+    text: "What are the main challenges facing democracy today?",
+  },
 ];
 
 // Pick N unique items, shuffled
@@ -27,6 +39,10 @@ function pickRandom<T>(arr: T[], n: number) {
 }
 
 export default function FlowApp() {
+  const [page, setPage] = useState<"idle" | "ask" | "final">("idle");
+  const [selected, setSelected] = useState<Q | null>(null);
+  const [lastAnswer, setLastAnswer] = useState<string>("");
+
   const [userQuestions, setUserQuestions] = useState<Q[]>(() => {
     try {
       const raw = localStorage.getItem(STORAGE_USER_KEY);
@@ -47,29 +63,58 @@ export default function FlowApp() {
     [userQuestions],
   );
 
-  const [page, setPage] = useState<"idle" | "ask" | "final">("idle");
-  const [selected, setSelected] = useState<Q | null>(null);
-  const [lastAnswer, setLastAnswer] = useState<string>("");
-
   // Only show 8 random questions on idle page
   const visibleQuestions = useMemo(() => {
     if (page !== "idle") return [];
     return pickRandom(allQuestions, 8);
   }, [page, allQuestions]);
 
+  // --- Inactivity timer (kiosk mode) ---
+  const INACTIVITY_TIMEOUT = 30_000; // 30 seconds
+  const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const resetInactivityTimer = () => {
+    if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+
+    inactivityTimer.current = setTimeout(() => {
+      // soft reset to idle
+      setSelected(null);
+      setLastAnswer("");
+      setPage("idle");
+    }, INACTIVITY_TIMEOUT);
+  };
+
+  useEffect(() => {
+    // start timer once
+    resetInactivityTimer();
+
+    return () => {
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // --- Navigation / handlers ---
   const handleSelect = (q: Q) => {
+    resetInactivityTimer();
     setSelected(q);
     setPage("ask");
   };
 
   const handleSubmitAnswer = (text: string) => {
+    resetInactivityTimer();
     setLastAnswer(text);
     setPage("final");
   };
 
   const handleAddQuestion = (text: string) => {
-    const q: Q = { id: `user-${Date.now()}`, text };
-    setUserQuestions((s) => [q, ...s]);
+    resetInactivityTimer();
+
+    const trimmed = text.trim();
+    if (trimmed.length > 0) {
+      const q: Q = { id: `user-${Date.now()}`, text: trimmed };
+      setUserQuestions((s) => [q, ...s]);
+    }
 
     // reset flow
     setSelected(null);
@@ -77,12 +122,27 @@ export default function FlowApp() {
     setPage("idle");
   };
 
-  const goHome = () => setPage("idle");
-  const goToAsk = () => setPage("ask");
-  const goToFinal = () => setPage("final");
+  const goHome = () => {
+    resetInactivityTimer();
+    setPage("idle");
+  };
+
+  const goToAsk = () => {
+    resetInactivityTimer();
+    setPage("ask");
+  };
+
+  const goToFinal = () => {
+    resetInactivityTimer();
+    setPage("final");
+  };
 
   return (
-    <main className="min-h-screen p-6 bg-gradient-to-b from-neutral-900 to-neutral-800 text-white">
+    <main
+      className="min-h-screen p-6 bg-gradient-to-b from-neutral-900 to-neutral-800 text-white"
+      onClick={resetInactivityTimer}
+      onKeyDown={resetInactivityTimer}
+    >
       <div className="max-w-4xl mx-auto">
         {/* Centered breadcrumb navigation */}
         <nav className="flex justify-center mb-8">
@@ -97,16 +157,14 @@ export default function FlowApp() {
               return (
                 <li key={item.key}>
                   {isActive ? (
-                    <span
-                      className="pb-1 border-b border-neutral-300/70
- text-white"
-                    >
+                    <span className="pb-1 border-b border-neutral-300/70 text-white">
                       {item.label}
                     </span>
                   ) : (
                     <button
                       onClick={item.onClick}
                       className="text-neutral-400 hover:text-white transition-colors"
+                      type="button"
                     >
                       {item.label}
                     </button>
@@ -132,7 +190,7 @@ export default function FlowApp() {
 
         {page === "ask" && (
           <QuestionScreen
-            question={selected ?? undefined}
+            question={selected ?? undefined} // optional prompt only
             onSubmit={handleSubmitAnswer}
             onBack={goHome}
           />

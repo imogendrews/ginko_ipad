@@ -16,7 +16,7 @@ export default function FinalScreen({
   return (
     <div className="min-h-screen flex flex-col items-center p-6">
       <div className="w-full max-w-2xl mt-8 text-center">
-        <h1 className="text-3xl font-semibold mb-2">Your submission</h1>
+        <h1 className="text-3xl font-semibold mb-2">Your Input</h1>
         <div className="bg-white/5 p-4 rounded text-sm mb-6">{answer}</div>
 
         <h2 className="text-md font-medium mb-2">

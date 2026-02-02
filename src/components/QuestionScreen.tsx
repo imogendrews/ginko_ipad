@@ -24,7 +24,7 @@ export default function QuestionScreen({
         </p>
 
         <Textarea
-          placeholder="Write your answer…"
+          placeholder="I think…"
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
           className="min-h-[180px] mb-4"
