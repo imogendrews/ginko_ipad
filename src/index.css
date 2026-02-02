@@ -121,3 +121,25 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Floating question animation and styles */
+@layer components {
+  .floating-question {
+    transform: translate3d(0, 0, 0);
+    animation-name: floaty;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+  }
+
+  @keyframes floaty {
+    0% {
+      transform: translateY(0) translateX(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-8px) translateX(6px) rotate(-1deg);
+    }
+    100% {
+      transform: translateY(0) translateX(0) rotate(0deg);
+    }
+  }
+}
