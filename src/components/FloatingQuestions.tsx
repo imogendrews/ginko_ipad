@@ -3,6 +3,7 @@ import { useMemo } from "react";
 type Question = {
   id: string;
   text: string;
+  q: any; // original question object kept by parent
 };
 
 export default function FloatingQuestions({
@@ -12,7 +13,6 @@ export default function FloatingQuestions({
   questions: Question[];
   onSelect: (q: Question) => void;
 }) {
-  // Generate positions and animation params once
   const items = useMemo(() => {
     return questions.map((q, i) => {
       const top = 8 + ((i * 13) % 80);
