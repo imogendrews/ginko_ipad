@@ -361,7 +361,7 @@ export default function FlowApp() {
           <div className="w-[140px]" />
 
           {/* center nav */}
-          <ul className="flex-1 flex justify-center items-center gap-8 text-sm">
+          {/* <ul className="flex-1 flex justify-center items-center gap-8 text-sm">
             {[
               { key: "idle", label: t("nav_choose"), onClick: goHome },
               { key: "ask", label: t("nav_answer"), onClick: goToAsk },
@@ -387,7 +387,7 @@ export default function FlowApp() {
                 </li>
               );
             })}
-          </ul>
+          </ul> */}
 
           {/* right: language toggle */}
           <div className="w-[140px] flex justify-end items-center gap-2 text-xs">
@@ -449,7 +449,7 @@ export default function FlowApp() {
         )}
 
         {/* —— Page: Ask (answer screen) —— */}
-        {page === "ask" && (
+        {/* {page === "ask" && (
           <QuestionScreen
             uiLang={uiLang}
             question={
@@ -466,17 +466,47 @@ export default function FlowApp() {
             onSubmit={handleSubmitAnswer}
             onBack={goHome}
           />
-        )}
+        )} */}
 
         {/* —— Page: Final (leave a question) —— */}
-        {page === "final" && (
+        {/* {page === "final" && (
           <FinalScreen
             uiLang={uiLang}
             answer={lastAnswer}
             onLeaveQuestion={handleAddQuestion}
             onHome={goHome}
           />
-        )}
+        )} */}
+
+        {page !== "idle" && selected && (
+
+     <div className="flex flex-col items-center gap-6 space-y-6">
+    {/* —— QuestionScreen —— */}
+    <QuestionScreen
+      uiLang={uiLang}
+      question={{
+        id: selected.id,
+        text: selected.source === "seed" ? selected.text[uiLang] : selected.text,
+      }}
+      onSubmit={(text) => {
+        handleSubmitAnswer(text);
+      }}
+      onBack={goHome}
+      hasAnswered={lastAnswer.trim() !== ""}
+      // handlers for "glimpse" buttons (optional)
+  
+    />
+
+    {/* —— FinalScreen (leave a question) —— */}
+    <FinalScreen
+      uiLang={uiLang}
+      answer={lastAnswer}
+      onLeaveQuestion={handleAddQuestion}
+      onHome={goHome}
+      disabled={lastAnswer.trim() === ""} // only enable if answered
+    />
+  </div>
+)}
       </div>
     </main>
   );

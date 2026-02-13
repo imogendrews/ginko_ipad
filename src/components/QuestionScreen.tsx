@@ -8,11 +8,13 @@ type Phase = "form" | "send";
 export default function QuestionScreen({
   uiLang,
   question,
+   hasAnswered = false, // default false
   onSubmit,
   onBack,
 }: {
   uiLang: "en" | "de";
   question?: { id: string; text: string } | null;
+    hasAnswered?: boolean; // ← add this
   onSubmit: (answer: string) => void;
   onBack: () => void;
 }) {
@@ -61,7 +63,7 @@ export default function QuestionScreen({
   };
 
   return (
-    <div className="min-h-screen relative bg-transparent">
+    <div className=" relative bg-transparent">
       <AnimatePresence mode="wait">
         {phase === "form" && (
           <motion.div
@@ -70,7 +72,7 @@ export default function QuestionScreen({
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: -10, filter: "blur(10px)" }}
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="min-h-screen flex flex-col items-center p-6"
+            className=" flex flex-col items-center p-6"
           >
             <div className="w-full max-w-2xl mt-8 text-center">
               <h1 className="text-3xl font-semibold mb-2">
