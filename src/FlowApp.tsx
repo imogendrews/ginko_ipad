@@ -126,7 +126,7 @@ const I18N: Record<Lang, Record<string, string>> = {
     nav_leave: "Leave a Question",
     idle_title: "Click a question to answer it.",
     idle_hint:
-      "By answering a question you will directly be contributing to this democracy and making it either better or worse depedning on what your input it. Share your thoughts and see how it changes the tree. Questions may appear in different languages, depending on how visitors added them. Inputs can be processed in multiple languages.",
+      "By answering a question you will directly be contributing to this democracy and making it either better or worse depedning on what your input it. Share your thoughts and see how it changes the tree.",
     lang: "Language",
     refresh: "Refresh questions",
   },
@@ -136,7 +136,7 @@ const I18N: Record<Lang, Record<string, string>> = {
     nav_leave: "Frage hinzufügen",
     idle_title: "Klicke eine Frage an, um sie zu beantworten.",
     idle_hint:
-      "Fragen können in unterschiedlichen Sprachen erscheinen je nachdem, in welcher Sprache sie hinzugefügt wurden. Eingaben können in mehreren Sprachen verarbeitet werden.",
+      "By answering a question you will directly be contributing to this democracy and making it either better or worse depedning on what your input it. Share your thoughts and see how it changes the tree.",
     lang: "Sprache",
     refresh: "Fragen neu mischen",
   },
@@ -182,7 +182,7 @@ export default function FlowApp() {
   // —— Refresh state (for “new set” + new layout)
   const [refreshKey, setRefreshKey] = useState(0);
   const [lastPickedIds, setLastPickedIds] = useState<Set<string>>(new Set());
-  const [step, setStep] = useState("opinion"); 
+  const [step, setStep] = useState("opinion");
 
   // —— User-added questions (loaded from localStorage)
   const [userQuestions, setUserQuestions] = useState<UserQ[]>(() => {
@@ -480,51 +480,49 @@ export default function FlowApp() {
           />
         )} */}
 
-  {page !== "idle" && selected && (
-  <>
-    {/* —— QuestionScreen —— */}
-    {lastAnswer.trim() === "" && (
-      <QuestionScreen
-        uiLang={uiLang}
-        question={{
-          id: selected.id,
-          text:
-            selected.source === "seed"
-              ? selected.text[uiLang]
-              : selected.text,
-        }}
-        onSubmit={(text) => {
-          handleSubmitAnswer(text);
-        }}
-        onBack={goHome}
-        hasAnswered={false}
-      />
-    )}
+        {page !== "idle" && selected && (
+          <>
+            {/* —— QuestionScreen —— */}
+            {lastAnswer.trim() === "" && (
+              <QuestionScreen
+                uiLang={uiLang}
+                question={{
+                  id: selected.id,
+                  text:
+                    selected.source === "seed"
+                      ? selected.text[uiLang]
+                      : selected.text,
+                }}
+                onSubmit={(text) => {
+                  handleSubmitAnswer(text);
+                }}
+                onBack={goHome}
+                hasAnswered={false}
+              />
+            )}
 
-    {/* —— FinalScreen + Database —— */}
-    <div className="flex gap-6 items-start mt-4">
-      <FinalScreen
-        uiLang={uiLang}
-        answer={lastAnswer}
-        onLeaveQuestion={handleAddQuestion}
-        onHome={goHome}
-        // Disabled until the first answer is submitted
-        disabled={lastAnswer.trim() === ""}
-      />
+            {/* —— FinalScreen + Database —— */}
+            <div className="flex gap-6 items-start mt-4">
+              <FinalScreen
+                uiLang={uiLang}
+                answer={lastAnswer}
+                onLeaveQuestion={handleAddQuestion}
+                onHome={goHome}
+                // Disabled until the first answer is submitted
+                disabled={lastAnswer.trim() === ""}
+              />
 
-      <Database
-        uiLang={uiLang}
-        answer={lastAnswer}
-        onLeaveQuestion={handleAddQuestion}
-        onHome={goHome}
-        // Disabled until the first answer is submitted
-        disabled={lastAnswer.trim() === ""}
-      />
-    </div>
-  </>
-)}
-
-
+              <Database
+                uiLang={uiLang}
+                answer={lastAnswer}
+                onLeaveQuestion={handleAddQuestion}
+                onHome={goHome}
+                // Disabled until the first answer is submitted
+                disabled={lastAnswer.trim() === ""}
+              />
+            </div>
+          </>
+        )}
       </div>
     </main>
   );
