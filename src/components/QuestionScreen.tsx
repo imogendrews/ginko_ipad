@@ -34,7 +34,7 @@ export default function QuestionScreen({
   const I18N = {
     en: {
       shareTitle: "Share your voice",
-      shareHint: "Share your thoughts below.",
+      shareHint: "Share your thoughts below. Once you have contributed to this democracy you will be able to leave a question for other participants or add a statement that will shape this democracy.",
       placeholder: "I think…",
       back: "Back",
       submit: "Submit",

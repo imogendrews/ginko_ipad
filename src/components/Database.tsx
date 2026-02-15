@@ -20,10 +20,10 @@ export default function FinalScreen({
   const I18N = {
     en: {
       title: "Your Input",
-      leave: "Leave a new question for others",
-      placeholder: "Write a question to add to the pile…",
+      leave: "Leave a statement that will shape this democracy",
+      placeholder: "Your statement will be used to make up the foudation of this democracy, add wisely",
       skip: "Skip",
-      add: "Add Question",
+      add: "Add Statement",
     },
     de: {
       title: "Deine Eingabe",

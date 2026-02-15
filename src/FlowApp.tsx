@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import FloatingQuestions from "@/components/FloatingQuestions";
 import QuestionScreen from "@/components/QuestionScreen";
 import FinalScreen from "@/components/FinalScreen";
+import Database from "@/components/Database";
 
 // —— Types ————————————————————————————————————————————————
 type Lang = "en" | "de";
@@ -125,7 +126,7 @@ const I18N: Record<Lang, Record<string, string>> = {
     nav_leave: "Leave a Question",
     idle_title: "Click a question to answer it.",
     idle_hint:
-      "Questions may appear in different languages, depending on how visitors added them. Inputs can be processed in multiple languages.",
+      "By answering a question you will directly be contributing to this democracy and making it either better or worse depedning on what your input it. Share your thoughts and see how it changes the tree. Questions may appear in different languages, depending on how visitors added them. Inputs can be processed in multiple languages.",
     lang: "Language",
     refresh: "Refresh questions",
   },
@@ -181,6 +182,7 @@ export default function FlowApp() {
   // —— Refresh state (for “new set” + new layout)
   const [refreshKey, setRefreshKey] = useState(0);
   const [lastPickedIds, setLastPickedIds] = useState<Set<string>>(new Set());
+  const [step, setStep] = useState("opinion"); 
 
   // —— User-added questions (loaded from localStorage)
   const [userQuestions, setUserQuestions] = useState<UserQ[]>(() => {
@@ -478,35 +480,51 @@ export default function FlowApp() {
           />
         )} */}
 
-        {page !== "idle" && selected && (
-
-     <div className="flex flex-col items-center gap-6 space-y-6">
+  {page !== "idle" && selected && (
+  <>
     {/* —— QuestionScreen —— */}
-    <QuestionScreen
-      uiLang={uiLang}
-      question={{
-        id: selected.id,
-        text: selected.source === "seed" ? selected.text[uiLang] : selected.text,
-      }}
-      onSubmit={(text) => {
-        handleSubmitAnswer(text);
-      }}
-      onBack={goHome}
-      hasAnswered={lastAnswer.trim() !== ""}
-      // handlers for "glimpse" buttons (optional)
-  
-    />
+    {lastAnswer.trim() === "" && (
+      <QuestionScreen
+        uiLang={uiLang}
+        question={{
+          id: selected.id,
+          text:
+            selected.source === "seed"
+              ? selected.text[uiLang]
+              : selected.text,
+        }}
+        onSubmit={(text) => {
+          handleSubmitAnswer(text);
+        }}
+        onBack={goHome}
+        hasAnswered={false}
+      />
+    )}
 
-    {/* —— FinalScreen (leave a question) —— */}
-    <FinalScreen
-      uiLang={uiLang}
-      answer={lastAnswer}
-      onLeaveQuestion={handleAddQuestion}
-      onHome={goHome}
-      disabled={lastAnswer.trim() === ""} // only enable if answered
-    />
-  </div>
+    {/* —— FinalScreen + Database —— */}
+    <div className="flex gap-6 items-start mt-4">
+      <FinalScreen
+        uiLang={uiLang}
+        answer={lastAnswer}
+        onLeaveQuestion={handleAddQuestion}
+        onHome={goHome}
+        // Disabled until the first answer is submitted
+        disabled={lastAnswer.trim() === ""}
+      />
+
+      <Database
+        uiLang={uiLang}
+        answer={lastAnswer}
+        onLeaveQuestion={handleAddQuestion}
+        onHome={goHome}
+        // Disabled until the first answer is submitted
+        disabled={lastAnswer.trim() === ""}
+      />
+    </div>
+  </>
 )}
+
+
       </div>
     </main>
   );
