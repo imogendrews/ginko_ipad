@@ -126,8 +126,14 @@ const I18N: Record<Lang, Record<string, string>> = {
     nav_leave: "Leave a Question",
     idle_title: "Click a question to answer it.",
     idle_hint:
-      "By answering a question you will directly be contributing to this democracy and making it either better or worse depedning on what your input it. Share your thoughts and see how it changes the tree.",
+      "By responding to a question, you actively contribute to this evolving democracy. Your input can shape it in different ways. Share your perspective and observe how the tree transforms through collective voices.",
+    final_title: "How would you like to participate in this democracy?",
+    final_hint: "You can either leave a question for the next visitor or add a statement that will shape this democracy.",
+    
+    final_question_button: "Leave Question",
+    final_statement_button: "Add Statement",
     lang: "Language",
+
     refresh: "Refresh questions",
   },
   de: {
@@ -136,7 +142,11 @@ const I18N: Record<Lang, Record<string, string>> = {
     nav_leave: "Frage hinzufügen",
     idle_title: "Klicke eine Frage an, um sie zu beantworten.",
     idle_hint:
-      "By answering a question you will directly be contributing to this democracy and making it either better or worse depedning on what your input it. Share your thoughts and see how it changes the tree.",
+      "Mit deiner Antwort trägst du aktiv zu dieser sich entwickelnden Demokratie bei. Dein Beitrag kann sie auf unterschiedliche Weise prägen. Teile deine Perspektive und beobachte, wie sich der Baum durch die Stimmen aller verändert.",
+          final_title: "Wie möchtest du dich an dieser Demokratie beteiligen?",
+    final_hint: "Du kannst eine Frage für die nächste Person hinterlassen oder ein Statement hinzufügen, das diese Demokratie prägt.",
+    final_question_button: "Frage hinterlassen",
+    final_statement_button: "Statement hinzufügen",
     lang: "Sprache",
     refresh: "Fragen neu mischen",
   },
@@ -178,11 +188,18 @@ export default function FlowApp() {
   const [page, setPage] = useState<"idle" | "ask" | "final">("idle");
   const [selected, setSelected] = useState<Q | null>(null);
   const [lastAnswer, setLastAnswer] = useState<string>("");
+  // this helps show the UI when the user chooses between two buttons:
+  const [finalMode, setFinalMode] = useState< "question" | "statement" | null>(null);
+  // submission modal state
+  const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+const [submittedType, setSubmittedType] = useState<"question" | "statement" | null>(null);
+
+
 
   // —— Refresh state (for “new set” + new layout)
   const [refreshKey, setRefreshKey] = useState(0);
   const [lastPickedIds, setLastPickedIds] = useState<Set<string>>(new Set());
-  const [step, setStep] = useState("opinion");
+
 
   // —— User-added questions (loaded from localStorage)
   const [userQuestions, setUserQuestions] = useState<UserQ[]>(() => {
@@ -294,10 +311,15 @@ export default function FlowApp() {
   }, []);
 
   // —— Handlers (navigation + actions)
+  const goBack = () => {
+    resetInactivityTimer();
+    setFinalMode(null)
+  };
   const goHome = () => {
     resetInactivityTimer();
-    setPage("idle");
+       setPage("idle");
   };
+
 
   const goToAsk = () => {
     resetInactivityTimer();
@@ -318,8 +340,38 @@ export default function FlowApp() {
   const handleSubmitAnswer = (text: string) => {
     resetInactivityTimer();
     setLastAnswer(text);
+      setFinalMode(null); // 👈 reset to choice screen
     setPage("final");
   };
+
+const handleAddQuestionWithModal = (text: string) => {
+
+  setSubmittedType("question");
+  setShowSubmissionModal(true);
+
+  setTimeout(() => {
+      handleAddQuestion(text); // properly call function 
+    setShowSubmissionModal(false);
+    setSubmittedType(null);
+    goHome(); // sends back to idle after modal
+  }, 4000);
+};
+
+const handleAddStatementWithModal = (text: string) => {
+
+
+  setSubmittedType("statement");
+  setShowSubmissionModal(true);
+
+  setTimeout(() => {
+      handleAddQuestion(text); // this is just a placeholder; replace with actual statement handling logic
+    setShowSubmissionModal(false);
+    setSubmittedType(null);
+    goHome();
+  }, 4000);
+};
+
+
 
   const handleAddQuestion = (text: string) => {
     resetInactivityTimer();
@@ -443,50 +495,89 @@ export default function FlowApp() {
     )}
 
     {/* —— FinalScreen + Database —— */}
-    <div className="flex gap-6 items-start mt-4">
+ {page === "final" && (
+  <div className="mt-6 max-w-2xl mx-auto">
+    {/* Text */}
+     <h1 className="text-3xl font-semibold mb-6 text-center">
+              {t("final_title")}
+            </h1>
+
+            <p className="text-center text-sm text-neutral-300/80 max-w-0.4xl mx-auto mb-4">
+              {t("final_hint")}
+            </p>
+
+    {/* Buttons */}
+    <div className="flex justify-center gap-4 mb-6">
+      <button
+        onClick={() => setFinalMode("question")}
+        className={`px-4 py-2 rounded-lg border transition
+          ${finalMode === "question"
+            ? "bg-white/20 border-white/40"
+            : "bg-white/5 border-white/20 hover:bg-white/10"}
+        `}
+      >
+      {t("final_question_button")}
+      </button>
+
+      <button
+        onClick={() => setFinalMode("statement")}
+        className={`px-4 py-2 rounded-lg border transition
+          ${finalMode === "statement"
+            ? "bg-white/20 border-white/40"
+            : "bg-white/5 border-white/20 hover:bg-white/10"}
+        `}
+      >
+          {t("final_statement_button")}
+      </button>
+        <button
+    onClick={goHome}
+    className="px-4 py-2 rounded-lg border border-white/20 bg-white/0 hover:bg-white/10"
+  >
+    Skip
+  </button>
+    </div>
+
+    {/* Conditional UI below */}
+    {finalMode === "question" && (
       <FinalScreen
         uiLang={uiLang}
         answer={lastAnswer}
-        onLeaveQuestion={handleAddQuestion}
-        onHome={goHome}
-        // Disabled until the first answer is submitted
+        onLeaveQuestion={handleAddQuestionWithModal}
+   
         disabled={lastAnswer.trim() === ""}
       />
+    )}
 
+    {finalMode === "statement" && (
       <Database
         uiLang={uiLang}
         answer={lastAnswer}
-        onLeaveQuestion={handleAddQuestion}
-        onHome={goHome}
-        // Disabled until the first answer is submitted
+        onLeaveQuestion={handleAddStatementWithModal}
+       
         disabled={lastAnswer.trim() === ""}
       />
+    )}
+  </div>
+)}
+{showSubmissionModal && submittedType && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="bg-neutral-900 p-6 rounded-xl max-w-sm text-center text-white">
+      <h2 className="text-xl font-semibold mb-4">
+        {submittedType === "question" ? "Question submitted!" : "Statement submitted!"}
+      </h2>
+      <p className="mb-6">
+        {submittedType === "question"
+          ? "Thank you for leaving a question. It will be shown to the next visitor."
+          : "Thank you for adding a statement. It will help shape this democracy."}
+      </p>
+   
     </div>
-  </>
+  </div>
 )}
 
-            {/* —— FinalScreen + Database ——
-            <div className="flex gap-6 items-start mt-4">
-              <FinalScreen
-                uiLang={uiLang}
-                answer={lastAnswer}
-                onLeaveQuestion={handleAddQuestion}
-                onHome={goHome}
-                // Disabled until the first answer is submitted
-                disabled={lastAnswer.trim() === ""}
-              />
 
-              <Database
-                uiLang={uiLang}
-                answer={lastAnswer}
-                onLeaveQuestion={handleAddQuestion}
-                onHome={goHome}
-                // Disabled until the first answer is submitted
-                disabled={lastAnswer.trim() === ""}
-              />
-            </div> */}
-       
-        {/* )} */}
+  </>
+)}
       </div>
     </main>
   );

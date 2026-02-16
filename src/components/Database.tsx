@@ -6,13 +6,13 @@ export default function FinalScreen({
   uiLang,
   answer,
   onLeaveQuestion,
-  onHome,
+
    disabled = false, // ← new
 }: {
   uiLang: "en" | "de";
   answer: string;
   onLeaveQuestion: (q: string) => void;
-  onHome: () => void;
+
     disabled?: boolean; // ← new
 }) {
   const [newQ, setNewQ] = useState("");
@@ -22,15 +22,15 @@ export default function FinalScreen({
       title: "Your Input",
       leave: "Leave a statement that will shape this democracy",
       placeholder: "Your statement will be used to make up the foudation of this democracy, add wisely",
-      skip: "Skip",
+      back: "Back",
       add: "Add Statement",
     },
     de: {
       title: "Deine Eingabe",
       leave: "Hinterlasse eine neue Frage für andere",
       placeholder: "Schreibe eine Frage für den Stapel…",
-      skip: "Überspringen",
-      add: "Frage hinzufügen",
+      back: "Zurück",
+      add: "Statement hinzufügen",
     },
   } as const;
 
@@ -54,13 +54,7 @@ export default function FinalScreen({
         disabled={disabled} // ← disable textarea
       />
       <div className="flex gap-2 justify-end">
-        <Button
-          variant="outline"
-          onClick={onHome}
-          className="text-neutral-300"
-        >
-          {t.skip}
-        </Button>
+       
         <Button
           onClick={() => {
             if (!newQ.trim()) return;
