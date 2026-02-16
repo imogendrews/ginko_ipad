@@ -362,35 +362,6 @@ export default function FlowApp() {
           {/* left spacer */}
           <div className="w-[140px]" />
 
-          {/* center nav */}
-          {/* <ul className="flex-1 flex justify-center items-center gap-8 text-sm">
-            {[
-              { key: "idle", label: t("nav_choose"), onClick: goHome },
-              { key: "ask", label: t("nav_answer"), onClick: goToAsk },
-              { key: "final", label: t("nav_leave"), onClick: goToFinal },
-            ].map((item) => {
-              const isActive = page === item.key;
-
-              return (
-                <li key={item.key}>
-                  {isActive ? (
-                    <span className="pb-1 border-b border-neutral-300/70 text-white">
-                      {item.label}
-                    </span>
-                  ) : (
-                    <button
-                      onClick={item.onClick}
-                      className="text-neutral-400 hover:text-white transition-colors"
-                      type="button"
-                    >
-                      {item.label}
-                    </button>
-                  )}
-                </li>
-              );
-            })}
-          </ul> */}
-
           {/* right: language toggle */}
           <div className="w-[140px] flex justify-end items-center gap-2 text-xs">
             <span className="opacity-70">{t("lang")}:</span>
@@ -449,36 +420,6 @@ export default function FlowApp() {
             />
           </section>
         )}
-
-        {/* —— Page: Ask (answer screen) —— */}
-        {/* {page === "ask" && (
-          <QuestionScreen
-            uiLang={uiLang}
-            question={
-              selected
-                ? {
-                    id: selected.id,
-                    text:
-                      selected.source === "seed"
-                        ? selected.text[uiLang]
-                        : selected.text,
-                  }
-                : undefined
-            }
-            onSubmit={handleSubmitAnswer}
-            onBack={goHome}
-          />
-        )} */}
-
-        {/* —— Page: Final (leave a question) —— */}
-        {/* {page === "final" && (
-          <FinalScreen
-            uiLang={uiLang}
-            answer={lastAnswer}
-            onLeaveQuestion={handleAddQuestion}
-            onHome={goHome}
-          />
-        )} */}
 
   {page !== "idle" && selected && (
   <>
